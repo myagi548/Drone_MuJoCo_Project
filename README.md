@@ -1,4 +1,3 @@
-
 # Autonomous Self-Stabilizing Drone with Obstacle Avoidance
 
 <p align="center">
@@ -21,15 +20,15 @@ The project combines PID control, trajectory planning, obstacle avoidance, state
 
 ## 2. Project Objectives
 
-- Implement drone simulation using MuJoCo.
-- Stabilize roll and pitch using PID control.
-- Generate smooth trajectories using cubic B-splines.
-- Detect obstacles and generate collision-free paths.
-- Analyze system observability and controllability.
-- Predict unsafe attitude conditions using Logistic Regression.
-- Recover from unsafe attitude conditions.
-- Evaluate flight under wind disturbances.
-- Extend navigation to multiple obstacles and targets.
+* Implement drone simulation using MuJoCo.
+* Stabilize roll and pitch using PID control.
+* Generate smooth trajectories using cubic B-splines.
+* Detect obstacles and generate collision-free paths.
+* Analyze system observability and controllability.
+* Predict unsafe attitude conditions using Logistic Regression.
+* Recover from unsafe attitude conditions.
+* Evaluate flight under wind disturbances.
+* Extend navigation to multiple obstacles and targets.
 
 ## 3. System Workflow
 
@@ -75,50 +74,50 @@ This diagram represents the intended workflow. Each stage must be validated thro
 
 ## 4. Technologies Used
 
-| Component | Technology |
-|---|---|
-| Programming | Python |
-| Physics simulation | MuJoCo |
-| Numerical computation | NumPy |
-| Trajectory planning | Cubic B-splines |
-| Flight control | PID |
-| Safety prediction | Logistic Regression |
-| Visualization | MuJoCo viewer and plotting tools |
+| Component             | Technology                       |
+| --------------------- | -------------------------------- |
+| Programming           | Python                           |
+| Physics simulation    | MuJoCo                           |
+| Numerical computation | NumPy                            |
+| Trajectory planning   | Cubic B-splines                  |
+| Flight control        | PID                              |
+| Safety prediction     | Logistic Regression              |
+| Visualization         | MuJoCo viewer and plotting tools |
 
 ## 5. Repository Structure
 
 ```text
 Drone_MuJoCo_Project/
-│
-├── analysis/
-├── control/
-├── experiments/
-├── navigation/
-│   ├── bspline.py
-│   ├── b_spline_trajectory.py
-│   ├── obstacle_planner.py
-│   ├── planned_bspline.py
-│   ├── plot_planned_bspline.py
-│   └── waypoint_planner.py
-│
-├── prediction/
-├── results/
-├── sensors/
-│
-├── simulation/
-│   ├── drone_model.xml
-│   ├── mixer.py
-│   ├── mujoco_force_assignment_test.py
-│   ├── pid_mixer_mujoco_test.py
-│   ├── pid_mixer_mujoco_viewer.py
-│   ├── pid_roll_test.py
-│   └── position_bspline_mujoco_test.py
-│
-├── assets/
-│   └── amrita_logo.png
-│
-├── README.md
-└── .gitignore
+|
++-- analysis/
++-- control/
++-- experiments/
++-- navigation/
+|   +-- bspline.py
+|   +-- b_spline_trajectory.py
+|   +-- obstacle_planner.py
+|   +-- planned_bspline.py
+|   +-- plot_planned_bspline.py
+|   +-- waypoint_planner.py
+|
++-- prediction/
++-- results/
++-- sensors/
+|
++-- simulation/
+|   +-- drone_model.xml
+|   +-- mixer.py
+|   +-- mujoco_force_assignment_test.py
+|   +-- pid_mixer_mujoco_test.py
+|   +-- pid_mixer_mujoco_viewer.py
+|   +-- pid_roll_test.py
+|   +-- position_bspline_mujoco_test.py
+|
++-- assets/
+|   +-- amrita_logo.png
+|
++-- README.md
++-- .gitignore
 ```
 
 ## 6. Mathematical Model
@@ -605,18 +604,18 @@ Use the appropriate script for each experiment. If a command fails, resolve that
 
 ## 15. Experiments
 
-| Experiment | Objective |
-|---|---|
-| Attitude stabilization | Evaluate PID roll and pitch control |
-| Rotor force assignment | Verify force application |
-| Position control | Evaluate position tracking |
-| B-spline trajectory | Generate and track a smooth path |
-| Single obstacle | Test basic obstacle avoidance |
-| Multiple obstacles | Test path planning in a more complex environment |
-| Multiple targets | Test sequential target navigation |
-| Wind disturbance | Evaluate stabilization and trajectory resumption |
-| Safety prediction | Evaluate unsafe-state classification |
-| Recovery controller | Evaluate attitude recovery |
+| Experiment             | Objective                                        |
+| ---------------------- | ------------------------------------------------ |
+| Attitude stabilization | Evaluate PID roll and pitch control              |
+| Rotor force assignment | Verify force application                         |
+| Position control       | Evaluate position tracking                       |
+| B-spline trajectory    | Generate and track a smooth path                 |
+| Single obstacle        | Test basic obstacle avoidance                    |
+| Multiple obstacles     | Test path planning in a more complex environment |
+| Multiple targets       | Test sequential target navigation                |
+| Wind disturbance       | Evaluate stabilization and trajectory resumption |
+| Safety prediction      | Evaluate unsafe-state classification             |
+| Recovery controller    | Evaluate attitude recovery                       |
 
 ## 16. Results
 
@@ -626,29 +625,29 @@ No unverified performance values are reported here.
 
 ## 17. Team Details
 
-**Institution:** Amrita Vishwa Vidyapeetham  
-**Campus:** Coimbatore  
+**Institution:** Amrita Vishwa Vidyapeetham
+**Campus:** Coimbatore
 **Team:** AB14
 
-| Name | Student ID | Email |
-|---|---|---|
-| Devisri | CB.SC.U4AIE24163 | devisri7142@gmail.com |
-| Monisha | CB.SC.U4AIE24157 | vemurimonishareddy@gmail.com |
-| Myagi | CB.SC.U4AIE24143 | patimamyagi@gmail.com |
+| Name    | Student ID       | Email                                                               |
+| ------- | ---------------- | ------------------------------------------------------------------- |
+| Devisri | CB.SC.U4AIE24163 | [devisri7142@gmail.com](mailto:devisri7142@gmail.com)               |
+| Monisha | CB.SC.U4AIE24157 | [vemurimonishareddy@gmail.com](mailto:vemurimonishareddy@gmail.com) |
+| Myagi   | CB.SC.U4AIE24143 | [patimamyagi@gmail.com](mailto:patimamyagi@gmail.com)               |
 
 ## 18. Future Work
 
-- Complete and validate the baseline simulation.
-- Extend obstacle avoidance to multiple obstacles.
-- Extend navigation to multiple targets.
-- Implement wind stabilization and trajectory resumption.
-- Integrate and evaluate the safety prediction model.
-- Validate recovery behavior under disturbances.
-- Record reproducible results and prepare experiment documentation.
+* Complete and validate the baseline simulation.
+* Extend obstacle avoidance to multiple obstacles.
+* Extend navigation to multiple targets.
+* Implement wind stabilization and trajectory resumption.
+* Integrate and evaluate the safety prediction model.
+* Validate recovery behavior under disturbances.
+* Record reproducible results and prepare experiment documentation.
 
 ---
 
 <p align="center">
   <strong>Autonomous Self-Stabilizing Drone with Obstacle Avoidance</strong><br>
-  Amrita Vishwa Vidyapeetham — Coimbatore
+  Amrita Vishwa Vidyapeetham - Coimbatore
 </p>
