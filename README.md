@@ -16,19 +16,19 @@
 
 This project develops an autonomous self-stabilizing drone simulation using MuJoCo. The drone is designed to stabilize its attitude, follow a smooth B-spline trajectory, detect and avoid obstacles, predict unsafe flight conditions, and recover from attitude disturbances.
 
-The project combines PID control, trajectory planning, obstacle avoidance, state-space analysis, and machine learning-based safety prediction.
+The project combines PID control, trajectory planning, obstacle avoidance, state-space analysis, and machine-learning-based safety prediction.
 
 ## 2. Project Objectives
 
-* Implement drone simulation using MuJoCo.
-* Stabilize roll and pitch using PID control.
-* Generate smooth trajectories using cubic B-splines.
-* Detect obstacles and generate collision-free paths.
-* Analyze system observability and controllability.
-* Predict unsafe attitude conditions using Logistic Regression.
-* Recover from unsafe attitude conditions.
-* Evaluate flight under wind disturbances.
-* Extend navigation to multiple obstacles and targets.
+- Implement drone simulation using MuJoCo.
+- Stabilize roll and pitch using PID control.
+- Generate smooth trajectories using cubic B-splines.
+- Detect obstacles and generate collision-free paths.
+- Analyze system observability and controllability.
+- Predict unsafe attitude conditions using Logistic Regression.
+- Recover from unsafe attitude conditions.
+- Evaluate flight under wind disturbances.
+- Extend navigation to multiple obstacles and targets.
 
 ## 3. System Workflow
 
@@ -67,22 +67,22 @@ Safety Prediction
                          Resume Trajectory
                                   |
                                   v
-                             Target Reached
+                            Target Reached
 ```
 
 This diagram represents the intended workflow. Each stage must be validated through its corresponding simulation experiment.
 
 ## 4. Technologies Used
 
-| Component             | Technology                       |
-| --------------------- | -------------------------------- |
-| Programming           | Python                           |
-| Physics simulation    | MuJoCo                           |
-| Numerical computation | NumPy                            |
-| Trajectory planning   | Cubic B-splines                  |
-| Flight control        | PID                              |
-| Safety prediction     | Logistic Regression              |
-| Visualization         | MuJoCo viewer and plotting tools |
+| Component | Technology |
+|---|---|
+| Programming | Python |
+| Physics simulation | MuJoCo |
+| Numerical computation | NumPy |
+| Trajectory planning | Cubic B-splines |
+| Flight control | PID |
+| Safety prediction | Logistic Regression |
+| Visualization | MuJoCo viewer and plotting tools |
 
 ## 5. Repository Structure
 
@@ -99,11 +99,9 @@ Drone_MuJoCo_Project/
 |   +-- planned_bspline.py
 |   +-- plot_planned_bspline.py
 |   +-- waypoint_planner.py
-|
 +-- prediction/
 +-- results/
 +-- sensors/
-|
 +-- simulation/
 |   +-- drone_model.xml
 |   +-- mixer.py
@@ -112,10 +110,8 @@ Drone_MuJoCo_Project/
 |   +-- pid_mixer_mujoco_viewer.py
 |   +-- pid_roll_test.py
 |   +-- position_bspline_mujoco_test.py
-|
 +-- assets/
 |   +-- amrita_logo.png
-|
 +-- README.md
 +-- .gitignore
 ```
@@ -126,176 +122,134 @@ Drone_MuJoCo_Project/
 
 The simplified rotational dynamics about one axis are:
 
-$$
-I\ddot{\theta}(t)=\tau(t)
-$$
+```text
+I * theta_ddot(t) = tau(t)
+```
 
 Taking the Laplace transform with zero initial conditions:
 
-$$
-Is^2\Theta(s)=\Tau(s)
-$$
+```text
+I * s^2 * Theta(s) = Tau(s)
+```
 
 The transfer function is:
 
-$$
-\boxed{
-G(s)=\frac{\Theta(s)}{\Tau(s)}
-=\frac{1}{Is^2}
-}
-$$
+```text
+G(s) = Theta(s) / Tau(s) = 1 / (I * s^2)
+```
 
-where \(I\) is the moment of inertia, \(\theta\) is the angular position, and \(\tau\) is the applied torque.
+Here, `I` is the moment of inertia, `theta` is angular position, and `tau` is applied torque.
 
-This is a simplified single-axis model; a full drone model includes coupled rotational and translational dynamics.
+This is a simplified single-axis model. A full drone model includes coupled rotational and translational dynamics.
 
 ### 6.2 PID Controller
 
 The attitude error is:
 
-$$
-e(t)=\theta_d(t)-\theta(t)
-$$
+```text
+e(t) = desired_angle(t) - actual_angle(t)
+```
 
 The PID control law is:
 
-$$
-\boxed{
-u(t)=K_p e(t)
-+K_i\int_0^t e(\lambda)\,d\lambda
-+K_d\frac{de(t)}{dt}
-}
-$$
+```text
+u(t) = Kp * e(t)
+     + Ki * integral(e(lambda), lambda=0..t)
+     + Kd * de(t)/dt
+```
 
 The proportional, integral, and derivative terms are:
 
-$$
-u_P(t)=K_p e(t)
-$$
-
-$$
-u_I(t)=K_i\int_0^t e(\lambda)\,d\lambda
-$$
-
-$$
-u_D(t)=K_d\frac{de(t)}{dt}
-$$
+```text
+u_P(t) = Kp * e(t)
+u_I(t) = Ki * integral(e(lambda), lambda=0..t)
+u_D(t) = Kd * de(t)/dt
+```
 
 The total controller output is:
 
-$$
-u(t)=u_P(t)+u_I(t)+u_D(t)
-$$
+```text
+u(t) = u_P(t) + u_I(t) + u_D(t)
+```
 
 ### 6.3 PID Gain Derivation
 
 For the plant:
 
-$$
-I\ddot{\theta}(t)=\tau(t)
-$$
-
-the transfer function is:
-
-$$
-G(s)=\frac{1}{Is^2}
-$$
+```text
+I * theta_ddot(t) = tau(t)
+G(s) = 1 / (I * s^2)
+```
 
 Using a PID controller:
 
-$$
-C(s)=K_p+\frac{K_i}{s}+K_d s
-$$
+```text
+C(s) = Kp + Ki/s + Kd*s
+```
 
 The closed-loop characteristic polynomial is:
 
-$$
-Is^3+K_d s^2+K_p s+K_i=0
-$$
+```text
+I*s^3 + Kd*s^2 + Kp*s + Ki = 0
+```
 
 Choose the desired characteristic polynomial:
 
-$$
-(s^2+2\zeta\omega_n s+\omega_n^2)(s+p_3)
-$$
+```text
+(s^2 + 2*zeta*wn*s + wn^2) * (s + p3)
+```
 
 Expanding:
 
-$$
-\begin{aligned}
-& s^3
-+(2\zeta\omega_n+p_3)s^2\\
-&+(\omega_n^2+2\zeta\omega_n p_3)s\\
-&+\omega_n^2p_3
-\end{aligned}
-$$
+```text
+s^3
++ (2*zeta*wn + p3)*s^2
++ (wn^2 + 2*zeta*wn*p3)*s
++ wn^2*p3
+```
 
 Matching coefficients gives:
 
-$$
-\boxed{
-K_d=I(2\zeta\omega_n+p_3)
-}
-$$
+```text
+Kd = I * (2*zeta*wn + p3)
+Kp = I * (wn^2 + 2*zeta*wn*p3)
+Ki = I * wn^2 * p3
+```
 
-$$
-\boxed{
-K_p=I(\omega_n^2+2\zeta\omega_n p_3)
-}
-$$
+Here, `zeta` is the damping ratio, `wn` is the natural frequency, and `p3` is the additional real pole.
 
-$$
-\boxed{
-K_i=I\omega_n^2p_3
-}
-$$
-
-where \(\zeta\) is the damping ratio, \(\omega_n\) is the natural frequency, and \(p_3\) is the additional real pole.
-
-These formulas apply to the simplified plant and the stated controller structure. The gains must be validated against the actual MuJoCo dynamics and actuator limits.
+These formulas apply to the simplified plant and stated controller structure. The gains must be validated against the actual MuJoCo dynamics and actuator limits.
 
 ## 7. B-Spline Trajectory Planning
 
 ### 7.1 General B-Spline Curve
 
-A B-spline curve of degree \(p\) is:
+A B-spline curve of degree `p` is:
 
-$$
-\boxed{
-P(u)=\sum_{i=0}^{n}N_{i,p}(u)P_i
-}
-$$
+```text
+P(u) = sum(N_i,p(u) * P_i), for i = 0..n
+```
 
-where \(P_i\) are control points, \(N_{i,p}(u)\) are basis functions, and \(u\) is the curve parameter.
+Here, `P_i` are control points, `N_i,p(u)` are basis functions, and `u` is the curve parameter.
 
 ### 7.2 Degree-Zero Basis Function
 
-$$
-\boxed{
-N_{i,0}(u)=
-\begin{cases}
-1, & t_i\leq u<t_{i+1},\\
-0, & \text{otherwise}.
-\end{cases}
-}
-$$
+```text
+N_i,0(u) = 1, when t_i <= u < t_(i+1)
+N_i,0(u) = 0, otherwise
+```
 
-Here, \(t_i\) and \(t_{i+1}\) are consecutive knot values.
+Here, `t_i` and `t_(i+1)` are consecutive knot values.
 
 ### 7.3 Cox-de Boor Recursion
 
-For \(p>0\):
+For `p > 0`:
 
-$$
-\begin{aligned}
-N_{i,p}(u)
-={}&
-\frac{u-t_i}{t_{i+p}-t_i}N_{i,p-1}(u)\\
-&+
-\frac{t_{i+p+1}-u}{t_{i+p+1}-t_{i+1}}
-N_{i+1,p-1}(u)
-\end{aligned}
-$$
+```text
+N_i,p(u) =
+    ((u - t_i) / (t_(i+p) - t_i)) * N_i,p-1(u)
+  + ((t_(i+p+1) - u) / (t_(i+p+1) - t_(i+1))) * N_(i+1),p-1(u)
+```
 
 A term with a zero denominator is taken as zero.
 
@@ -303,33 +257,23 @@ A term with a zero denominator is taken as zero.
 
 For a cubic B-spline:
 
-$$
-p=3
-$$
+```text
+p = 3
+P(u) = sum(N_i,3(u) * P_i), for i = 0..n
+```
 
-The curve is:
+The first and second derivatives describe parameter-space velocity and acceleration:
 
-$$
-P(u)=\sum_{i=0}^{n}N_{i,3}(u)P_i
-$$
+```text
+V(u) = dP(u)/du
+A(u) = d^2P(u)/du^2
+```
 
-The first and second derivatives describe trajectory velocity and acceleration:
+For time-parameterized motion `u = u(t)`:
 
-$$
-V(u)=\frac{dP(u)}{du}
-$$
-
-$$
-A(u)=\frac{d^2P(u)}{du^2}
-$$
-
-For time-parameterized motion \(u=u(t)\):
-
-$$
-\frac{dP}{dt}
-=
-\frac{dP}{du}\frac{du}{dt}
-$$
+```text
+dP/dt = (dP/du) * (du/dt)
+```
 
 The trajectory must be checked for obstacle clearance after spline construction.
 
@@ -339,56 +283,35 @@ The trajectory must be checked for obstacle clearance after spline construction.
 
 A straight-line path from start to goal is:
 
-$$
-\boxed{
-P(\lambda)=P_s+\lambda(P_g-P_s)
-}
-$$
+```text
+P(lambda) = P_s + lambda * (P_g - P_s)
+0 <= lambda <= 1
+```
 
-where:
+For `N` intervals:
 
-$$
-0\leq\lambda\leq1
-$$
-
-For \(N\) intervals:
-
-$$
-\lambda_k=\frac{k}{N},
-\qquad k=0,1,\ldots,N
-$$
-
-The sampled positions are:
-
-$$
-P_k=P_s+\frac{k}{N}(P_g-P_s)
-$$
+```text
+lambda_k = k/N, for k = 0, 1, ..., N
+P_k = P_s + (k/N) * (P_g - P_s)
+```
 
 ### 8.2 Axis-Aligned Box Obstacle
 
-For obstacle center \(c\) and size vector \(d\):
+For obstacle center `c` and size vector `d`:
 
-$$
-b_{\min}=c-\frac{d}{2}
-$$
+```text
+b_min = c - d/2
+b_max = c + d/2
+```
 
-$$
-b_{\max}=c+\frac{d}{2}
-$$
+Inflating the obstacle by safety distance `d_s`:
 
-Inflating the obstacle by safety distance \(d_s\):
+```text
+b_min_inflated = b_min - d_s
+b_max_inflated = b_max + d_s
+```
 
-$$
-b_{\min}^{\,\mathrm{inflated}}
-=b_{\min}-d_s
-$$
-
-$$
-b_{\max}^{\,\mathrm{inflated}}
-=b_{\max}+d_s
-$$
-
-A candidate path is accepted only if it maintains the required clearance from the inflated obstacle.
+A candidate path is accepted only if it maintains the required clearance from the inflated obstacle. The complete spline trajectory should be checked, not only its waypoints.
 
 ## 9. State-Space Analysis
 
@@ -396,105 +319,74 @@ A candidate path is accepted only if it maintains the required clearance from th
 
 A linear system is represented by:
 
-$$
-\boxed{
-\dot{x}(t)=Ax(t)+Bu(t)
-}
-$$
+```text
+x_dot = A*x + B*u
+y = C*x + D*u
+```
 
-$$
-\boxed{
-y(t)=Cx(t)+Du(t)
-}
-$$
-
-where \(x\) is the state vector, \(u\) is the input, and \(y\) is the output.
+Here, `x` is the state vector, `u` is the input, and `y` is the output.
 
 ### 9.2 Observability
 
 The observability matrix is:
 
-$$
-\boxed{
-\mathcal{O}=
-\begin{bmatrix}
-C\\
-CA\\
-CA^2\\
-\vdots\\
-CA^{n-1}
-\end{bmatrix}
-}
-$$
+```text
+O = [ C
+      C*A
+      C*A^2
+      ...
+      C*A^(n-1) ]
+```
 
 The system is observable if:
 
-$$
-\boxed{
-\operatorname{rank}(\mathcal{O})=n
-}
-$$
+```text
+rank(O) = n
+```
 
-where \(n\) is the number of states.
+Here, `n` is the number of states.
 
 ### 9.3 Controllability
 
 The controllability matrix is:
 
-$$
-\boxed{
-\mathcal{C}=
-\begin{bmatrix}
-B & AB & A^2B & \cdots & A^{n-1}B
-\end{bmatrix}
-}
-$$
+```text
+Ctr = [ B  A*B  A^2*B  ...  A^(n-1)*B ]
+```
 
 The system is controllable if:
 
-$$
-\boxed{
-\operatorname{rank}(\mathcal{C})=n
-}
-$$
+```text
+rank(Ctr) = n
+```
 
-The matrices \(A\), \(B\), and \(C\) must correspond to the actual state and measurement definitions used in the simulation.
+The matrices `A`, `B`, and `C` must correspond to the actual state and measurement definitions used in the simulation.
 
 ## 10. Logistic Regression Safety Prediction
 
 The Logistic Regression model estimates the probability of a designated safety class:
 
-$$
-\boxed{
-P(y=1\mid x)=\frac{1}{1+e^{-z}}
-}
-$$
+```text
+P(y=1 | x) = 1 / (1 + exp(-z))
+z = w^T*x + b
+```
 
-where:
+For a feature vector with `m` features:
 
-$$
-z=w^Tx+b
-$$
+```text
+z = sum(w_j*x_j, j=1..m) + b
+```
 
-For a feature vector with \(m\) features:
+The predicted class is defined by the chosen threshold `T`:
 
-$$
-z=\sum_{j=1}^{m}w_jx_j+b
-$$
+```text
+If P(y=1 | x) >= T:
+    predicted class = 1
+Otherwise:
+    predicted class = 0
+```
 
-The predicted class is:
-
-$$
-\hat{y}=
-\begin{cases}
-1, & P(y=1\mid x)\geq T,\\
-0, & P(y=1\mid x)<T.
-\end{cases}
-$$
-
-where \(T\) is the classification threshold.
-
-Possible input features include roll, pitch, angular velocity, and trajectory tracking error. The actual feature set, labels, threshold, and model performance must be documented after training and testing.
+Document explicitly whether class `1` means SAFE or UNSAFE. Possible input features include roll, pitch, angular velocity, and trajectory tracking error. The actual feature set, labels, threshold, and model performance must be documented after training and testing.
 
 ## 11. Recovery Control
 
@@ -502,29 +394,24 @@ The recovery controller is intended to bring the drone back toward its desired a
 
 For roll and pitch:
 
-$$
-e_\phi(t)=\phi_d(t)-\phi(t)
-$$
-
-$$
-e_\theta(t)=\theta_d(t)-\theta(t)
-$$
+```text
+e_roll(t) = desired_roll(t) - roll(t)
+e_pitch(t) = desired_pitch(t) - pitch(t)
+```
 
 The corresponding PID outputs are:
 
-$$
-u_\phi(t)=
-K_{p,\phi}e_\phi(t)
-+K_{i,\phi}\int_0^t e_\phi(\lambda)d\lambda
-+K_{d,\phi}\frac{de_\phi(t)}{dt}
-$$
+```text
+u_roll(t) =
+    Kp_roll*e_roll(t)
+  + Ki_roll*integral(e_roll(lambda), lambda=0..t)
+  + Kd_roll*de_roll(t)/dt
 
-$$
-u_\theta(t)=
-K_{p,\theta}e_\theta(t)
-+K_{i,\theta}\int_0^t e_\theta(\lambda)d\lambda
-+K_{d,\theta}\frac{de_\theta(t)}{dt}
-$$
+u_pitch(t) =
+    Kp_pitch*e_pitch(t)
+  + Ki_pitch*integral(e_pitch(lambda), lambda=0..t)
+  + Kd_pitch*de_pitch(t)/dt
+```
 
 The controller should resume trajectory tracking only after the defined recovery conditions are satisfied.
 
@@ -550,17 +437,17 @@ Resume B-Spline Trajectory
 
 A simplified rotational model with an external disturbance torque is:
 
-$$
-I\ddot{\theta}(t)=\tau_c(t)+\tau_w(t)
-$$
+```text
+I * theta_ddot(t) = tau_c(t) + tau_w(t)
+```
 
-where \(\tau_c(t)\) is the controller torque and \(\tau_w(t)\) is the disturbance torque caused by wind.
+Here, `tau_c(t)` is controller torque and `tau_w(t)` is disturbance torque caused by wind.
 
 The controller aims to reduce the attitude error:
 
-$$
-e(t)=\theta_d(t)-\theta(t)
-$$
+```text
+e(t) = desired_angle(t) - actual_angle(t)
+```
 
 Wind response should be evaluated using recorded attitude, position error, and recovery time.
 
@@ -604,18 +491,18 @@ Use the appropriate script for each experiment. If a command fails, resolve that
 
 ## 15. Experiments
 
-| Experiment             | Objective                                        |
-| ---------------------- | ------------------------------------------------ |
-| Attitude stabilization | Evaluate PID roll and pitch control              |
-| Rotor force assignment | Verify force application                         |
-| Position control       | Evaluate position tracking                       |
-| B-spline trajectory    | Generate and track a smooth path                 |
-| Single obstacle        | Test basic obstacle avoidance                    |
-| Multiple obstacles     | Test path planning in a more complex environment |
-| Multiple targets       | Test sequential target navigation                |
-| Wind disturbance       | Evaluate stabilization and trajectory resumption |
-| Safety prediction      | Evaluate unsafe-state classification             |
-| Recovery controller    | Evaluate attitude recovery                       |
+| Experiment | Objective |
+|---|---|
+| Attitude stabilization | Evaluate PID roll and pitch control |
+| Rotor force assignment | Verify force application |
+| Position control | Evaluate position tracking |
+| B-spline trajectory | Generate and track a smooth path |
+| Single obstacle | Test basic obstacle avoidance |
+| Multiple obstacles | Test path planning in a more complex environment |
+| Multiple targets | Test sequential target navigation |
+| Wind disturbance | Evaluate stabilization and trajectory resumption |
+| Safety prediction | Evaluate unsafe-state classification |
+| Recovery controller | Evaluate attitude recovery |
 
 ## 16. Results
 
@@ -623,27 +510,15 @@ Simulation results, plots, and performance measurements will be added after the 
 
 No unverified performance values are reported here.
 
-## 17. Team Details
+## 17. Future Work
 
-**Institution:** Amrita Vishwa Vidyapeetham
-**Campus:** Coimbatore
-**Team:** AB14
-
-| Name    | Student ID       | Email                                                               |
-| ------- | ---------------- | ------------------------------------------------------------------- |
-| Devisri | CB.SC.U4AIE24163 | [devisri7142@gmail.com](mailto:devisri7142@gmail.com)               |
-| Monisha | CB.SC.U4AIE24157 | [vemurimonishareddy@gmail.com](mailto:vemurimonishareddy@gmail.com) |
-| Myagi   | CB.SC.U4AIE24143 | [patimamyagi@gmail.com](mailto:patimamyagi@gmail.com)               |
-
-## 18. Future Work
-
-* Complete and validate the baseline simulation.
-* Extend obstacle avoidance to multiple obstacles.
-* Extend navigation to multiple targets.
-* Implement wind stabilization and trajectory resumption.
-* Integrate and evaluate the safety prediction model.
-* Validate recovery behavior under disturbances.
-* Record reproducible results and prepare experiment documentation.
+- Complete and validate the baseline simulation.
+- Extend obstacle avoidance to multiple obstacles.
+- Extend navigation to multiple targets.
+- Implement wind stabilization and trajectory resumption.
+- Integrate and evaluate the safety prediction model.
+- Validate recovery behavior under disturbances.
+- Record reproducible results and prepare experiment documentation.
 
 ---
 
