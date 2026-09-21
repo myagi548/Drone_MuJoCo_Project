@@ -7,36 +7,29 @@
 
 <p align="center">
   <strong>Amrita Vishwa Vidyapeetham</strong><br>
-  Coimbatore, Tamil Nadu, India
-</p>
-
-<p align="center">
-  <strong>Department of Artificial Intelligence</strong>
+  Coimbatore, Tamil Nadu, India<br>
+  Department of Artificial Intelligence
 </p>
 
 ---
 
 ## 1. Project Overview
 
-This project focuses on developing an autonomous self-stabilizing drone simulation using MuJoCo.
+This project develops an autonomous self-stabilizing drone simulation using MuJoCo. The drone is designed to stabilize its attitude, follow a smooth B-spline trajectory, detect and avoid obstacles, predict unsafe flight conditions, and recover from attitude disturbances.
 
-The simulated drone is designed to follow a planned trajectory, detect obstacles, avoid collisions, maintain stable flight, and recover from unsafe attitude conditions.
-
-The project combines control systems, trajectory planning, obstacle avoidance, state estimation, and machine learning-based safety prediction.
-
-The simulation is being developed incrementally, beginning with a single-obstacle scenario and extending toward multiple obstacles, multiple targets, and wind-disturbance scenarios.
+The project combines PID control, trajectory planning, obstacle avoidance, state-space analysis, and machine learning-based safety prediction.
 
 ## 2. Project Objectives
 
-- Develop a drone simulation using MuJoCo.
-- Implement PID-based attitude stabilization.
+- Implement drone simulation using MuJoCo.
+- Stabilize roll and pitch using PID control.
 - Generate smooth trajectories using cubic B-splines.
-- Detect obstacles and plan collision-free paths.
-- Maintain stable roll and pitch angles during flight.
-- Investigate system observability and controllability.
-- Develop a machine learning-based safety prediction component.
-- Implement recovery control for unsafe attitude conditions.
-- Evaluate drone behavior under external disturbances such as wind.
+- Detect obstacles and generate collision-free paths.
+- Analyze system observability and controllability.
+- Predict unsafe attitude conditions using Logistic Regression.
+- Recover from unsafe attitude conditions.
+- Evaluate flight under wind disturbances.
+- Extend navigation to multiple obstacles and targets.
 
 ## 3. System Workflow
 
@@ -47,7 +40,7 @@ Drone Initialization
 Stable Hover
         |
         v
-Trajectory Generation
+B-Spline Trajectory Generation
         |
         v
 Forward Movement
@@ -56,47 +49,41 @@ Forward Movement
 Obstacle Detection
         |
         v
+Collision-Free Path Planning
+        |
+        v
 Obstacle Avoidance
         |
         v
-Continue Along Planned Trajectory
+Safety Prediction
         |
-        v
-Attitude Safety Monitoring
+        +---- SAFE ------> Continue Trajectory
         |
-        v
-Machine Learning Safety Prediction
-        |
-        v
-Unsafe Condition Detected
-        |
-        v
-Recovery Controller
-        |
-        v
-Roll and Pitch Stabilization
-        |
-        v
-Resume Trajectory
-        |
-        v
-Target Reached
+        +---- UNSAFE ----> Recovery Controller
+                                  |
+                                  v
+                         Attitude Stabilization
+                                  |
+                                  v
+                         Resume Trajectory
+                                  |
+                                  v
+                             Target Reached
 ```
 
-The workflow describes the intended system behavior. Individual stages are implemented and validated through separate simulation experiments.
+This diagram represents the intended workflow. Each stage must be validated through its corresponding simulation experiment.
 
 ## 4. Technologies Used
 
 | Component | Technology |
 |---|---|
-| Programming language | Python |
+| Programming | Python |
 | Physics simulation | MuJoCo |
 | Numerical computation | NumPy |
-| Trajectory planning | B-spline curves |
-| Flight stabilization | PID control |
-| Machine learning | Logistic Regression |
+| Trajectory planning | Cubic B-splines |
+| Flight control | PID |
+| Safety prediction | Logistic Regression |
 | Visualization | MuJoCo viewer and plotting tools |
-| Development environment | Python / Conda |
 
 ## 5. Repository Structure
 
@@ -104,13 +91,8 @@ The workflow describes the intended system behavior. Individual stages are imple
 Drone_MuJoCo_Project/
 │
 ├── analysis/
-│
 ├── control/
-│   ├── position_controller.py
-│   └── ...
-│
 ├── experiments/
-│
 ├── navigation/
 │   ├── bspline.py
 │   ├── b_spline_trajectory.py
@@ -120,9 +102,7 @@ Drone_MuJoCo_Project/
 │   └── waypoint_planner.py
 │
 ├── prediction/
-│
 ├── results/
-│
 ├── sensors/
 │
 ├── simulation/
@@ -141,163 +121,173 @@ Drone_MuJoCo_Project/
 └── .gitignore
 ```
 
-This structure represents the project organization; individual files may change as development continues.
-
 ## 6. Mathematical Model
 
-### 6.1 Drone Attitude Dynamics
+### 6.1 Rotational Dynamics
 
-For a simplified rotational model, the angular motion is described by:
+The simplified rotational dynamics about one axis are:
 
-\[
+$$
 I\ddot{\theta}(t)=\tau(t)
-\]
-
-where:
-
-- \(I\) is the moment of inertia.
-- \(\theta(t)\) is the angular position.
-- \(\tau(t)\) is the applied torque.
+$$
 
 Taking the Laplace transform with zero initial conditions:
 
-\[
+$$
 Is^2\Theta(s)=\Tau(s)
-\]
+$$
 
 The transfer function is:
 
-\[
+$$
 \boxed{
 G(s)=\frac{\Theta(s)}{\Tau(s)}
 =\frac{1}{Is^2}
 }
-\]
+$$
 
-This is a simplified single-axis rotational model. A complete drone model must account for coupled rotational and translational dynamics.
+where \(I\) is the moment of inertia, \(\theta\) is the angular position, and \(\tau\) is the applied torque.
+
+This is a simplified single-axis model; a full drone model includes coupled rotational and translational dynamics.
 
 ### 6.2 PID Controller
 
-The PID controller generates a control signal using the proportional, integral, and derivative components of the error.
+The attitude error is:
 
-The control error is:
-
-\[
-e(t)=\theta_{\mathrm{desired}}(t)-\theta_{\mathrm{actual}}(t)
-\]
+$$
+e(t)=\theta_d(t)-\theta(t)
+$$
 
 The PID control law is:
 
-\[
+$$
 \boxed{
 u(t)=K_p e(t)
 +K_i\int_0^t e(\lambda)\,d\lambda
 +K_d\frac{de(t)}{dt}
 }
-\]
+$$
 
-where:
+The proportional, integral, and derivative terms are:
 
-- \(K_p\) is the proportional gain.
-- \(K_i\) is the integral gain.
-- \(K_d\) is the derivative gain.
+$$
+u_P(t)=K_p e(t)
+$$
 
-The proportional term responds to the current error.
+$$
+u_I(t)=K_i\int_0^t e(\lambda)\,d\lambda
+$$
 
-The integral term accumulates past error.
+$$
+u_D(t)=K_d\frac{de(t)}{dt}
+$$
 
-The derivative term responds to the rate of change of error.
+The total controller output is:
 
-### 6.3 PID Gain Calculation
+$$
+u(t)=u_P(t)+u_I(t)+u_D(t)
+$$
 
-For the simplified plant:
+### 6.3 PID Gain Derivation
 
-\[
-I\ddot{\theta}=\tau
-\]
+For the plant:
 
-the characteristic polynomial of the closed-loop system can be designed using:
+$$
+I\ddot{\theta}(t)=\tau(t)
+$$
 
-\[
+the transfer function is:
+
+$$
+G(s)=\frac{1}{Is^2}
+$$
+
+Using a PID controller:
+
+$$
+C(s)=K_p+\frac{K_i}{s}+K_d s
+$$
+
+The closed-loop characteristic polynomial is:
+
+$$
+Is^3+K_d s^2+K_p s+K_i=0
+$$
+
+Choose the desired characteristic polynomial:
+
+$$
 (s^2+2\zeta\omega_n s+\omega_n^2)(s+p_3)
-\]
+$$
 
 Expanding:
 
-\[
-s^3+(2\zeta\omega_n+p_3)s^2
-+(\omega_n^2+2\zeta\omega_n p_3)s
-+\omega_n^2p_3
-\]
+$$
+\begin{aligned}
+& s^3
++(2\zeta\omega_n+p_3)s^2\\
+&+(\omega_n^2+2\zeta\omega_n p_3)s\\
+&+\omega_n^2p_3
+\end{aligned}
+$$
 
-Matching the coefficients gives:
+Matching coefficients gives:
 
-\[
+$$
 \boxed{
 K_d=I(2\zeta\omega_n+p_3)
 }
-\]
+$$
 
-\[
+$$
 \boxed{
 K_p=I(\omega_n^2+2\zeta\omega_n p_3)
 }
-\]
+$$
 
-\[
+$$
 \boxed{
 K_i=I\omega_n^2p_3
 }
-\]
+$$
 
-where:
+where \(\zeta\) is the damping ratio, \(\omega_n\) is the natural frequency, and \(p_3\) is the additional real pole.
 
-- \(\zeta\) is the damping ratio.
-- \(\omega_n\) is the natural frequency.
-- \(p_3\) is the additional real pole.
-- \(I\) is the moment of inertia.
+These formulas apply to the simplified plant and the stated controller structure. The gains must be validated against the actual MuJoCo dynamics and actuator limits.
 
-These expressions are derived for the simplified rotational plant and the stated characteristic polynomial. The resulting gains must be checked against the actual simulation dynamics and actuator limits.
+## 7. B-Spline Trajectory Planning
 
-### 6.4 B-Spline Trajectory Planning
+### 7.1 General B-Spline Curve
 
-A B-spline is a piecewise polynomial curve defined by control points and a knot vector.
+A B-spline curve of degree \(p\) is:
 
-The general B-spline curve is:
-
-\[
+$$
 \boxed{
 P(u)=\sum_{i=0}^{n}N_{i,p}(u)P_i
 }
-\]
+$$
 
-where:
+where \(P_i\) are control points, \(N_{i,p}(u)\) are basis functions, and \(u\) is the curve parameter.
 
-- \(P(u)\) is the position on the curve.
-- \(P_i\) are control points.
-- \(N_{i,p}(u)\) are B-spline basis functions.
-- \(p\) is the degree of the spline.
-- \(u\) is the curve parameter.
+### 7.2 Degree-Zero Basis Function
 
-#### Degree-zero basis function
-
-The degree-zero basis function is:
-
-\[
+$$
+\boxed{
 N_{i,0}(u)=
 \begin{cases}
 1, & t_i\leq u<t_{i+1},\\
 0, & \text{otherwise}.
 \end{cases}
-\]
+}
+$$
 
-where \(t_i\) are knot values.
+Here, \(t_i\) and \(t_{i+1}\) are consecutive knot values.
 
-#### Cox-de Boor recursion formula
+### 7.3 Cox-de Boor Recursion
 
-For degree \(p>0\):
+For \(p>0\):
 
-\[
+$$
 \begin{aligned}
 N_{i,p}(u)
 ={}&
@@ -306,102 +296,127 @@ N_{i,p}(u)
 \frac{t_{i+p+1}-u}{t_{i+p+1}-t_{i+1}}
 N_{i+1,p-1}(u)
 \end{aligned}
-\]
+$$
 
-A term with a zero denominator is defined as zero.
+A term with a zero denominator is taken as zero.
 
-A cubic B-spline uses:
+### 7.4 Cubic B-Spline
 
-\[
+For a cubic B-spline:
+
+$$
 p=3
-\]
+$$
 
-Cubic B-splines can provide smooth trajectory geometry when the control points and knot vector are appropriately selected.
+The curve is:
 
-### 6.5 Direct Path and Waypoints
+$$
+P(u)=\sum_{i=0}^{n}N_{i,3}(u)P_i
+$$
 
-A straight-line path between start and goal positions can be represented as:
+The first and second derivatives describe trajectory velocity and acceleration:
 
-\[
+$$
+V(u)=\frac{dP(u)}{du}
+$$
+
+$$
+A(u)=\frac{d^2P(u)}{du^2}
+$$
+
+For time-parameterized motion \(u=u(t)\):
+
+$$
+\frac{dP}{dt}
+=
+\frac{dP}{du}\frac{du}{dt}
+$$
+
+The trajectory must be checked for obstacle clearance after spline construction.
+
+## 8. Path Planning and Obstacle Avoidance
+
+### 8.1 Straight-Line Reference Path
+
+A straight-line path from start to goal is:
+
+$$
+\boxed{
 P(\lambda)=P_s+\lambda(P_g-P_s)
-\]
+}
+$$
 
 where:
 
-- \(P_s\) is the start position.
-- \(P_g\) is the goal position.
-- \(\lambda\in[0,1]\).
+$$
+0\leq\lambda\leq1
+$$
 
-For \(N\) intervals, sample the path using:
+For \(N\) intervals:
 
-\[
+$$
 \lambda_k=\frac{k}{N},
 \qquad k=0,1,\ldots,N
-\]
+$$
 
-A collision-free waypoint planner can first generate a safe sequence of waypoints. A B-spline can then be constructed from an appropriate set of points to obtain a smooth trajectory.
+The sampled positions are:
 
-The final trajectory must be checked for collision clearance because smoothing a path can cause it to pass closer to obstacles than the original waypoint path.
+$$
+P_k=P_s+\frac{k}{N}(P_g-P_s)
+$$
 
-### 6.6 Obstacle Representation
+### 8.2 Axis-Aligned Box Obstacle
 
-An axis-aligned box obstacle can be represented by its center and dimensions.
+For obstacle center \(c\) and size vector \(d\):
 
-For a box with center \(c\) and size \(d\):
-
-\[
+$$
 b_{\min}=c-\frac{d}{2}
-\]
+$$
 
-\[
+$$
 b_{\max}=c+\frac{d}{2}
-\]
+$$
 
-A safety margin \(d_s\) can be included by inflating the obstacle bounds:
+Inflating the obstacle by safety distance \(d_s\):
 
-\[
-b_{\min}^{\mathrm{inflated}}
+$$
+b_{\min}^{\,\mathrm{inflated}}
 =b_{\min}-d_s
-\]
+$$
 
-\[
-b_{\max}^{\mathrm{inflated}}
+$$
+b_{\max}^{\,\mathrm{inflated}}
 =b_{\max}+d_s
-\]
+$$
 
-The planner can use the inflated obstacle to account for a desired clearance around the drone.
+A candidate path is accepted only if it maintains the required clearance from the inflated obstacle.
 
-## 7. Observability and Controllability
+## 9. State-Space Analysis
 
-### 7.1 State-Space Representation
+### 9.1 State-Space Model
 
-A linear system can be represented as:
+A linear system is represented by:
 
-\[
-\dot{x}=Ax+Bu
-\]
+$$
+\boxed{
+\dot{x}(t)=Ax(t)+Bu(t)
+}
+$$
 
-\[
-y=Cx+Du
-\]
+$$
+\boxed{
+y(t)=Cx(t)+Du(t)
+}
+$$
 
-where:
+where \(x\) is the state vector, \(u\) is the input, and \(y\) is the output.
 
-- \(x\) is the state vector.
-- \(u\) is the control input.
-- \(y\) is the measured output.
-- \(A\) is the state matrix.
-- \(B\) is the input matrix.
-- \(C\) is the output matrix.
-- \(D\) is the direct transmission matrix.
-
-### 7.2 Observability
-
-Observability describes whether the internal states of a system can be reconstructed from its outputs over time.
+### 9.2 Observability
 
 The observability matrix is:
 
-\[
+$$
+\boxed{
 \mathcal{O}=
 \begin{bmatrix}
 C\\
@@ -410,127 +425,122 @@ CA^2\\
 \vdots\\
 CA^{n-1}
 \end{bmatrix}
-\]
+}
+$$
 
 The system is observable if:
 
-\[
+$$
 \boxed{
-\mathrm{rank}(\mathcal{O})=n
+\operatorname{rank}(\mathcal{O})=n
 }
-\]
+$$
 
 where \(n\) is the number of states.
 
-### 7.3 Controllability
-
-Controllability describes whether the system can be driven from an initial state to a desired state using suitable control inputs.
+### 9.3 Controllability
 
 The controllability matrix is:
 
-\[
+$$
+\boxed{
 \mathcal{C}=
 \begin{bmatrix}
 B & AB & A^2B & \cdots & A^{n-1}B
 \end{bmatrix}
-\]
+}
+$$
 
 The system is controllable if:
 
-\[
+$$
 \boxed{
-\mathrm{rank}(\mathcal{C})=n
+\operatorname{rank}(\mathcal{C})=n
 }
-\]
+$$
 
-The observability and controllability conditions must be evaluated using the actual state-space matrices selected for the drone model.
+The matrices \(A\), \(B\), and \(C\) must correspond to the actual state and measurement definitions used in the simulation.
 
-## 8. Obstacle Avoidance
+## 10. Logistic Regression Safety Prediction
 
-The obstacle avoidance subsystem is designed to detect obstacles and adjust the planned route to maintain a safe distance.
+The Logistic Regression model estimates the probability of a designated safety class:
 
-The intended process is:
-
-1. Obtain obstacle information from the simulated sensors.
-2. Represent obstacles geometrically.
-3. Inflate obstacles using a selected safety margin.
-4. Generate candidate waypoints.
-5. Check candidate paths for collisions.
-6. Select a collision-free route.
-7. Generate a smooth trajectory.
-8. Track the trajectory using the control system.
-
-The planner should be tested with multiple obstacle configurations before extending it to more complex environments.
-
-## 9. Machine Learning-Based Safety Prediction
-
-The project includes a planned Logistic Regression classifier for safety prediction.
-
-The classifier can use selected drone state features, such as:
-
-- Roll angle.
-- Pitch angle.
-- Angular velocity.
-- Position or trajectory tracking error.
-
-The model predicts a safety class based on its trained parameters.
-
-For a binary classifier:
-
-\[
-P(y=1\mid x)=
-\frac{1}{1+e^{-z}}
-\]
+$$
+\boxed{
+P(y=1\mid x)=\frac{1}{1+e^{-z}}
+}
+$$
 
 where:
 
-\[
+$$
 z=w^Tx+b
-\]
+$$
 
-and:
+For a feature vector with \(m\) features:
 
-- \(x\) is the feature vector.
-- \(w\) is the learned weight vector.
-- \(b\) is the bias.
-- \(y=1\) represents the designated positive class.
+$$
+z=\sum_{j=1}^{m}w_jx_j+b
+$$
 
-The predicted class depends on the selected classification threshold.
+The predicted class is:
 
-The training dataset, feature definitions, threshold, and evaluation metrics must be documented when the classifier is implemented and validated.
+$$
+\hat{y}=
+\begin{cases}
+1, & P(y=1\mid x)\geq T,\\
+0, & P(y=1\mid x)<T.
+\end{cases}
+$$
 
-## 10. Recovery Controller
+where \(T\) is the classification threshold.
 
-The recovery controller is intended to respond when the drone's attitude is classified as unsafe.
+Possible input features include roll, pitch, angular velocity, and trajectory tracking error. The actual feature set, labels, threshold, and model performance must be documented after training and testing.
 
-The recovery sequence is:
+## 11. Recovery Control
 
-1. Detect an unsafe attitude condition.
-2. Reduce or suspend trajectory tracking commands as appropriate.
-3. Generate corrective control commands.
-4. Stabilize roll and pitch toward the desired attitude.
-5. Confirm that the drone has returned to an acceptable state.
-6. Resume trajectory tracking.
+The recovery controller is intended to bring the drone back toward its desired attitude when an unsafe condition is detected.
 
-A safety classifier alone does not guarantee recovery. Recovery behavior must be validated using the drone dynamics, controller limits, and simulated disturbance scenarios.
+For roll and pitch:
 
-## 11. Wind Disturbance Scenario
+$$
+e_\phi(t)=\phi_d(t)-\phi(t)
+$$
 
-The wind scenario is intended to evaluate the drone's ability to stabilize before resuming trajectory movement.
+$$
+e_\theta(t)=\theta_d(t)-\theta(t)
+$$
 
-The desired workflow is:
+The corresponding PID outputs are:
+
+$$
+u_\phi(t)=
+K_{p,\phi}e_\phi(t)
++K_{i,\phi}\int_0^t e_\phi(\lambda)d\lambda
++K_{d,\phi}\frac{de_\phi(t)}{dt}
+$$
+
+$$
+u_\theta(t)=
+K_{p,\theta}e_\theta(t)
++K_{i,\theta}\int_0^t e_\theta(\lambda)d\lambda
++K_{d,\theta}\frac{de_\theta(t)}{dt}
+$$
+
+The controller should resume trajectory tracking only after the defined recovery conditions are satisfied.
+
+## 12. Wind Disturbance Scenario
+
+The intended wind-response sequence is:
 
 ```text
 Wind Disturbance
        |
        v
-Detect Attitude / Position Deviation
+Measure State Deviation
        |
        v
-Stabilization Controller
-       |
-       v
-Recover Desired Attitude
+Stabilize Attitude
        |
        v
 Check Stability Conditions
@@ -539,88 +549,85 @@ Check Stability Conditions
 Resume B-Spline Trajectory
 ```
 
-The simulation should record the drone's attitude, position error, and recovery behavior during the disturbance.
+A simplified rotational model with an external disturbance torque is:
 
-## 12. Installation and Setup
+$$
+I\ddot{\theta}(t)=\tau_c(t)+\tau_w(t)
+$$
 
-### Prerequisites
+where \(\tau_c(t)\) is the controller torque and \(\tau_w(t)\) is the disturbance torque caused by wind.
 
-- Python
-- Conda
-- MuJoCo
-- Required Python packages
+The controller aims to reduce the attitude error:
 
-Activate the project's Conda environment:
+$$
+e(t)=\theta_d(t)-\theta(t)
+$$
+
+Wind response should be evaluated using recorded attitude, position error, and recovery time.
+
+## 13. Installation
+
+Activate the Conda environment:
 
 ```powershell
 conda activate drone_mujoco
 ```
 
-Navigate to the project directory:
+Navigate to the project folder:
 
 ```powershell
 cd C:\Users\patim\Documents\Drone_MuJoCo_Project
 ```
 
-Install dependencies using the project's dependency file if one is available.
-
-For example, if the project contains a `requirements.txt` file:
+If a `requirements.txt` file exists, install its dependencies:
 
 ```powershell
 python -m pip install -r requirements.txt
 ```
 
-The exact dependencies should match the current implementation.
+## 14. Running the Simulation
 
-## 13. Running the Simulation
+Run commands from the project root directory.
 
-Run scripts from the project root directory unless the individual script specifies otherwise.
-
-Example:
+Example attitude test:
 
 ```powershell
 python simulation\pid_roll_test.py
 ```
 
-For a Python module inside the navigation package, use module execution from the project root:
+Example navigation module:
 
 ```powershell
 python -m navigation.waypoint_planner
 ```
 
-Use the actual script corresponding to the scenario being tested.
+Use the appropriate script for each experiment. If a command fails, resolve that error before proceeding.
 
-## 14. Experiments
-
-The project is intended to be developed through separate experiments.
+## 15. Experiments
 
 | Experiment | Objective |
 |---|---|
-| Attitude stabilization | Test PID-based roll and pitch control |
-| Force assignment | Verify rotor force application |
-| Position control | Test position tracking |
-| B-spline trajectory | Generate and track smooth trajectories |
-| Single obstacle | Validate basic obstacle avoidance |
-| Multiple obstacles | Evaluate route planning in more complex environments |
-| Multiple targets | Evaluate sequential target navigation |
+| Attitude stabilization | Evaluate PID roll and pitch control |
+| Rotor force assignment | Verify force application |
+| Position control | Evaluate position tracking |
+| B-spline trajectory | Generate and track a smooth path |
+| Single obstacle | Test basic obstacle avoidance |
+| Multiple obstacles | Test path planning in a more complex environment |
+| Multiple targets | Test sequential target navigation |
 | Wind disturbance | Evaluate stabilization and trajectory resumption |
 | Safety prediction | Evaluate unsafe-state classification |
-| Recovery control | Evaluate recovery from attitude deviations |
+| Recovery controller | Evaluate attitude recovery |
 
-The results section should be updated only after the corresponding experiment has been executed and its outputs recorded.
+## 16. Results
 
-## 15. Results
+Simulation results, plots, and performance measurements will be added after the corresponding experiments have been executed and verified.
 
-Simulation results, plots, and experiment logs will be added here as they are produced and verified.
+No unverified performance values are reported here.
 
-No performance values are reported in this section until they have been obtained from actual simulation runs.
+## 17. Team Details
 
-## 16. Team Details
-
-**Institution:** Amrita Vishwa Vidyapeetham
-
-**Campus:** Coimbatore
-
+**Institution:** Amrita Vishwa Vidyapeetham  
+**Campus:** Coimbatore  
 **Team:** AB14
 
 | Name | Student ID | Email |
@@ -629,16 +636,15 @@ No performance values are reported in this section until they have been obtained
 | Monisha | CB.SC.U4AIE24157 | vemurimonishareddy@gmail.com |
 | Myagi | CB.SC.U4AIE24143 | patimamyagi@gmail.com |
 
-## 17. Future Work
+## 18. Future Work
 
 - Complete and validate the baseline simulation.
 - Extend obstacle avoidance to multiple obstacles.
 - Extend navigation to multiple targets.
-- Implement and evaluate wind stabilization.
-- Integrate and evaluate safety prediction.
-- Validate recovery controller behavior.
-- Record reproducible simulation results.
-- Prepare mathematical derivations and experiment explanations for project evaluation.
+- Implement wind stabilization and trajectory resumption.
+- Integrate and evaluate the safety prediction model.
+- Validate recovery behavior under disturbances.
+- Record reproducible results and prepare experiment documentation.
 
 ---
 
