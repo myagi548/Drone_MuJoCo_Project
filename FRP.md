@@ -1,4 +1,4 @@
-\# Final Review Proposal (FRP)
+
 
 
 
@@ -6,11 +6,11 @@ Project Title
 
 
 
-Autonomous Drone Navigation and Attitude Recovery Using B-Spline Trajectory Planning, PID Control, and Machine Learning
+Autonomous Self-Stabilizing Drone with Obstacle Avoidance
 
 
 
-&#x20;1. Introduction
+1. Introduction
 
 
 
@@ -22,7 +22,7 @@ The system will be developed and evaluated using the MuJoCo physics simulator.
 
 
 
-&#x20;2. Problem Statement
+2. Problem Statement
 
 
 
@@ -34,7 +34,7 @@ The project aims to develop and evaluate a simulation framework that allows a dr
 
 
 
-&#x20;3. Objectives
+3. Objectives
 
 
 
@@ -82,7 +82,7 @@ The project will be developed in the following stages:
 
 
 
-&#x20;5. Tools and Technologies
+5. Tools and Technologies
 
 
 
@@ -100,7 +100,7 @@ The project will be developed in the following stages:
 
 
 
-&#x20;6. Expected Outcomes
+6. Expected Outcomes
 
 
 
@@ -118,7 +118,7 @@ The project will be developed in the following stages:
 
 
 
-&#x20;7. Evaluation Metrics
+7. Evaluation Metrics
 
 
 
@@ -136,7 +136,7 @@ The project will be developed in the following stages:
 
 
 
-&#x20;8. Scope and Limitations
+8. Scope and Limitations
 
 
 
@@ -144,7 +144,7 @@ This project focuses on simulation-based development and evaluation. Results obt
 
 
 
-&#x20;9. Conclusion
+9. Conclusion
 
 
 
