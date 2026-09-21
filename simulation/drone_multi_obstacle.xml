@@ -1,0 +1,141 @@
+
+<mujoco model="autonomous_drone_multi_obstacle">
+
+    <compiler angle="degree" coordinate="local"/>
+    <option timestep="0.002" gravity="0 0 -9.81"/>
+
+    <visual>
+        <headlight ambient="0.5 0.5 0.5"
+                   diffuse="0.8 0.8 0.8"
+                   specular="0.1 0.1 0.1"/>
+    </visual>
+
+    <worldbody>
+
+        <!-- Ground -->
+        <geom name="ground"
+              type="plane"
+              size="20 20 0.1"
+              pos="0 0 0"
+              rgba="0.7 0.7 0.7 1"/>
+
+        <!-- Drone -->
+        <body name="drone" pos="0 0 1">
+            <freejoint name="drone_free"/>
+
+            <geom name="body"
+                  type="box"
+                  size="0.25 0.25 0.08"
+                  mass="1.0"
+                  rgba="0.2 0.4 1 1"/>
+
+            <!-- Four arms -->
+            <geom name="arm_front"
+                  type="capsule"
+                  fromto="0 0 0 0.45 0 0"
+                  size="0.035"
+                  mass="0"
+                  rgba="0.2 0.2 0.2 1"/>
+
+            <geom name="arm_back"
+                  type="capsule"
+                  fromto="0 0 0 -0.45 0 0"
+                  size="0.035"
+                  mass="0"
+                  rgba="0.2 0.2 0.2 1"/>
+
+            <geom name="arm_left"
+                  type="capsule"
+                  fromto="0 0 0 0 0.45 0"
+                  size="0.035"
+                  mass="0"
+                  rgba="0.2 0.2 0.2 1"/>
+
+            <geom name="arm_right"
+                  type="capsule"
+                  fromto="0 0 0 0 -0.45 0"
+                  size="0.035"
+                  mass="0"
+                  rgba="0.2 0.2 0.2 1"/>
+
+            <!-- Rotor sites -->
+            <site name="rotor_1" pos="0.45 0 0.05" size="0.08"/>
+            <site name="rotor_2" pos="-0.45 0 0.05" size="0.08"/>
+            <site name="rotor_3" pos="0 0.45 0.05" size="0.08"/>
+            <site name="rotor_4" pos="0 -0.45 0.05" size="0.08"/>
+
+        </body>
+
+        <!-- Obstacle 1 -->
+        <geom name="obstacle_1"
+              type="box"
+              pos="2 0 1"
+              size="0.4 0.4 1"
+              rgba="1 0 0 1"
+              contype="1"
+              conaffinity="1"/>
+
+        <!-- Obstacle 2 -->
+        <geom name="obstacle_2"
+              type="box"
+              pos="4 1.5 1"
+              size="0.4 0.4 1"
+              rgba="1 0.5 0 1"
+              contype="1"
+              conaffinity="1"/>
+
+        <!-- Obstacle 3 -->
+        <geom name="obstacle_3"
+              type="box"
+              pos="6 -1.5 1"
+              size="0.4 0.4 1"
+              rgba="0.7 0 1 1"
+              contype="1"
+              conaffinity="1"/>
+
+        <!-- Obstacle 4 -->
+        <geom name="obstacle_4"
+              type="box"
+              pos="8 0 1"
+              size="0.4 0.4 1"
+              rgba="0 0.6 1 1"
+              contype="1"
+              conaffinity="1"/>
+
+        <!-- Target markers -->
+        <site name="target_1"
+              type="cylinder"
+              pos="3 0 1"
+              size="0.3 0.03"
+              rgba="0 1 0 1"/>
+
+        <site name="target_2"
+              type="cylinder"
+              pos="5 0 1"
+              size="0.3 0.03"
+              rgba="0 1 0 1"/>
+
+        <site name="target_3"
+              type="cylinder"
+              pos="7 0 1"
+              size="0.3 0.03"
+              rgba="0 1 0 1"/>
+
+        <site name="target_final"
+              type="cylinder"
+              pos="10 0 1"
+              size="0.4 0.04"
+              rgba="0 1 0 1"/>
+
+        <!-- Camera -->
+        <camera name="main_camera"
+                pos="6 -6 4"
+                xyaxes="0.707 0.707 0 -0.25 0.25 0.935"/>
+
+        <!-- Light -->
+        <light name="sun"
+               pos="0 0 8"
+               dir="0 0 -1"/>
+
+    </worldbody>
+</mujoco>

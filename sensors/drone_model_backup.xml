@@ -1,0 +1,106 @@
+<mujoco model="autonomous_drone">
+
+    <compiler angle="degree" coordinate="local"/>
+
+    <option timestep="0.002" gravity="0 0 -9.81"/>
+
+    <visual>
+        <headlight ambient="0.5 0.5 0.5"
+                    diffuse="0.8 0.8 0.8"
+                    specular="0.1 0.1 0.1"/>
+    </visual>
+
+    <worldbody>
+
+        <!-- Ground -->
+        <geom name="ground"
+              type="plane"
+              size="20 20 0.1"
+              pos="0 0 0"/>
+
+        <!-- Drone -->
+        <body name="drone" pos="0 0 1">
+		<freejoint name="drone_free"/>
+
+            <!-- Main drone body -->
+            <geom name="body"
+                  type="box"
+                  size="0.25 0.25 0.08"
+                  mass="1.0"/>
+
+            <!-- Four arms -->
+            <geom name="arm_front"
+                  type="capsule"
+                  fromto="0 0 0 0.45 0 0"
+                  size="0.035"/>
+
+            <geom name="arm_back"
+                  type="capsule"
+                  fromto="0 0 0 -0.45 0 0"
+                  size="0.035"/>
+
+            <geom name="arm_left"
+                  type="capsule"
+                  fromto="0 0 0 0 0.45 0"
+                  size="0.035"/>
+
+            <geom name="arm_right"
+                  type="capsule"
+                  fromto="0 0 0 0 -0.45 0"
+                  size="0.035"/>
+
+            <!-- Rotor 1 -->
+            <site name="rotor_1"
+                  pos="0.45 0 0.05"
+                  size="0.08"/>
+
+            <!-- Rotor 2 -->
+            <site name="rotor_2"
+                  pos="-0.45 0 0.05"
+                  size="0.08"/>
+
+            <!-- Rotor 3 -->
+            <site name="rotor_3"
+                  pos="0 0.45 0.05"
+                  size="0.08"/>
+
+            <!-- Rotor 4 -->
+            <site name="rotor_4"
+                  pos="0 -0.45 0.05"
+                  size="0.08"/>
+
+        </body>
+
+        <!-- Camera -->
+        <camera name="main_camera"
+                pos="6 -6 4"
+                xyaxes="0.707 0.707 0 -0.25 0.25 0.935"/>
+
+        <!-- Light -->
+        <light name="sun"
+               pos="0 0 8"
+               dir="0 0 -1"/>
+
+    </worldbody>
+
+    <actuator>
+
+        <motor name="motor_1"
+               joint="drone_free"
+               gear="0 0 1 0 0 0"/>
+
+       <motor name="motor_2"
+              joint="drone_free"
+              gear="0 0 1 0 0 0"/>
+
+       <motor name="motor_3"
+               joint="drone_free"
+               gear="0 0 1 0 0 0"/>
+
+       <motor name="motor_4"
+              joint="drone_free"
+              gear="0 0 1 0 0 0"/>
+
+     </actuator>
+
+</mujoco>
